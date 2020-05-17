@@ -29,10 +29,16 @@ url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-
 
 def load_data(database_filepath):
     
-    # load data from database
+    '''Load dataframe from filepaths
+    INPUT
+    database filepath -- str, link to file
+ 
+    OUTPUT
+    df - pandas DataFrame
+    '''
     engine = create_engine('sqlite:///' + database_filepath)
     conn = sqlite3.connect('DisasterResponse.db')    
-    df= pd.read_sql('SELECT * FROM messages;', conn)
+    df= pd.read_sql_table('messages', engine)
     df.head()
     X = df['message'].values
     y = df.loc[:, 'related':'direct_report'].values
@@ -45,13 +51,25 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
+    '''Load dataframe from filepaths
+    INPUT
+    database filepath -- str, link to file
+ 
+    OUTPUT
+    clean tokens - list
+    '''
+    # use regex to extrar the url inside the inputs
     detected_urls = re.findall(url_regex, text)
+    # loop through the list to replace each url by a pach
     for url in detected_urls:
         text = text.replace(url, 'urlplaceholder')
-        
+    # use nltk functions to tokenize and lemmatize the scripts. 
+    
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
-        
+    
+    # use a loop for each text 
+    # append the results into a nwe list    
     clean_tokens = []
     for tok in tokens:
         clean_tok = lemmatizer.lemmatize(tok).lower().strip()
@@ -62,6 +80,8 @@ def tokenize(text):
 
 
 def build_model():
+    # use pipeline to tokenize and tfidf transform the the 
+    # use gridsearch to improve the model
     pipeline = pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidt', TfidfTransformer()),
@@ -85,6 +105,15 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    '''evaluate model 
+    INPUT
+    model
+    test outputs: X_test, Y_test
+    category_names: list of categories
+ 
+    OUTPUT
+    none
+    '''
     
     y_pred = model.predict(X_test)
     
@@ -99,6 +128,7 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 def save_model(model, model_filepath):
     
+    # use pickle to save the model    
     pickle_out = open(model_filepath, 'wb')
     pickle.dump(model, pickle_out)
     pickle_out.close()
