@@ -7,6 +7,7 @@ from sqlalchemy import create_engine
 
 
 def load_data(messages_filepath, categories_filepath):
+    # load the csv files from the folther data
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     
@@ -50,7 +51,7 @@ def save_data(df, database_filename):
     
     # Save the clean dataset into an sqlite database.
     engine = create_engine('sqlite:///{}'.format(database_filename))
-    df.to_sql(database_filename, engine, index=False, if_exists='replace') 
+    df.to_sql('messages', engine, index=False, if_exists='replace')
      
 
 
